@@ -31,6 +31,11 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, 'dist/index.html'))
   }
 
+  // Handle window close
+  ipcMain.on('close-window', () => {
+    mainWindow.close()
+  })
+
   // Handle mini mode toggle
   ipcMain.on('toggle-mini-mode', (event, isMini) => {
     mainWindow.setSize(

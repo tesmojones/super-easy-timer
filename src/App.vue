@@ -1,21 +1,19 @@
 <template>
   <v-app>
     <v-container class="pa-0" fluid>
-      <v-sheet :height="isMiniMode ? 80 : 200" :width="isMiniMode ? 200 : 300" class="d-flex flex-column align-center justify-center rounded-lg position-relative overflow-hidden" color="rgba(25, 25, 25, 0.95)" style="-webkit-app-region: drag">
+      <v-sheet :height="isMiniMode ? 100 : 200" :width="isMiniMode ? 200 : 300" class="d-flex flex-column align-center justify-center rounded-lg position-relative overflow-hidden" color="rgba(25, 25, 25, 0.95)" style="-webkit-app-region: drag">
         <!-- Window Controls -->
         <div class="d-flex gap-1 position-absolute" style="top: 8px; left: 8px; -webkit-app-region: no-drag">
-          <v-btn density="compact" icon size="x-small" color="#ff5f57" variant="flat" @click="window.close()" class="window-control" />
-          <v-btn density="compact" icon size="x-small" color="#febc2e" variant="flat" @click="window.minimize()" class="window-control" />
-          <v-btn density="compact" icon size="x-small" color="#28c840" variant="flat" @click="window.maximize()" class="window-control" />
+          <v-btn density="compact" icon size="x-small" color="#ff5f57" variant="flat" @click="closeWindow" class="window-control" />
         </div>
 
         <!-- Mini Mode Toggle -->
-        <v-btn icon="mdi-fullscreen-exit" size="small" variant="text" class="position-absolute" style="top: 8px; right: 8px; -webkit-app-region: no-drag" color="white" @click="toggleMiniMode" />
+        <v-btn icon="mdi-fullscreen-exit" size="small" variant="text" class="position-absolute" style="top: 0px; right: 0px; -webkit-app-region: no-drag" color="white" @click="toggleMiniMode" />
 
         <!-- Timer Controls -->
         <div class="d-flex gap-2" :class="{ 'position-absolute': true }" :style="{ 
-          top: isMiniMode ? '8px' : 'auto',
-          right: isMiniMode ? '40px' : '50%',
+          top: isMiniMode ? '0px' : 'auto',
+          right: isMiniMode ? '30px' : '50%',
           bottom: isMiniMode ? 'auto' : '0px',
           transform: isMiniMode ? 'none' : 'translateX(50%)',
           '-webkit-app-region': 'no-drag',
@@ -26,7 +24,7 @@
         </div>
 
         <!-- Time Input -->
-        <v-text-field v-model="inputValue" placeholder="Enter Time Here (ex. 20 min, add 1 hour, etc)" variant="outlined" density="compact" hide-details class="time-input" bg-color="rgba(0, 0, 0, 0.2)" style="-webkit-app-region: no-drag" @input="handleInputChange" />
+        <v-text-field v-model="inputValue" v-show="!isMiniMode" placeholder="Enter Time Here (ex. 20 min, add 1 hour, etc)" variant="outlined" density="compact" hide-details class="time-input" bg-color="rgba(0, 0, 0, 0.2)" style="-webkit-app-region: no-drag" @input="handleInputChange" />
 
         <!-- Timer Display -->
         <div class="timer-display" :class="{ 'mini': isMiniMode }">
@@ -40,6 +38,8 @@
 <script setup>
 import { ref, onUnmounted, computed } from 'vue'
 import * as chrono from 'chrono-node'
+
+const { ipcRenderer } = window.require('electron')
 
 const time = ref(0)
 const isRunning = ref(false)
@@ -76,6 +76,10 @@ const resetTimer = () => {
   time.value = 0
   isRunning.value = false
   inputValue.value = ''
+}
+
+const closeWindow = () => {
+  ipcRenderer.send('close-window')
 }
 
 const handleInputChange = () => {
@@ -125,7 +129,7 @@ onUnmounted(() => {
 .time-input {
   width: 85%;
   position: absolute;
-  top: 25px;
+  top: 35px;
 }
 
 .time-input :deep(.v-field__input) {
